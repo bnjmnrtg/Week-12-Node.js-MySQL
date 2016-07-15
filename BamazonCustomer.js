@@ -1,6 +1,7 @@
 var mysql = require('mysql');
 var inquirer = require('inquirer');
 
+var priceTotal = 0;
 var connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
@@ -9,51 +10,93 @@ var connection = mysql.createConnection({
     database: "Bamazon"
 })
 
- connection.query('SELECT * FROM products', function(err, res) {
+function displayItems(){
+    connection.query('SELECT * FROM products', function(err, res) {
+        if (err) throw err;
+        console.log('');
+        console.log('============================== Product List ==================================');
+        for (var i = 0; i < res.length; i++) {
+            console.log('Department Name: ' + res[i].department_name);
+            console.log('Item Id: '+res[i].id + '|' + ' Product: ' + res[i].product_name + '|' + ' Price: $' + res[i].price + '|' + ' In Stock: '+ res[i].stock_quantity);
+            console.log('-----------------------------------------------------------------------');
+        }
+        purchase();
+    })
+
+};
+
+connection.connect(function(err) {
     if (err) throw err;
-    console.log(res);
+    displayItems();
 })
 
+// =====================================================================
 
-// connection.connect(function(err) {
-//     if (err) throw err;
-//     purchase();
-// })
+var purchase = function() {
+    inquirer.prompt([{
+        name: "id",
+        type: "input",
+        message: "What is the ID of Item you want to Purchase?",
+        validate: function(value){
+            var valid = value.match(/^[0-9]+$/)
+            if(valid){
+                return true
+            }
+                return 'Please enter a valid Product ID'
+        }
+    
+    }, {
+        name: "stock_quantity",
+        type: "input",
+        message: "How many of this item do you want?",
+        validate: function(value){
+            var valid = value.match(/^[0-9]+$/)
+            if(valid){
+                return true
+            }
+                return 'Please enter a valid Product ID'
+        }
+    
+    }]).then(function(answer) {
+        connection.query('SELECT * FROM products WHERE id = ?', [answer.id], function(err, res){
+         if(answer.stock_quantity > res[0].stock_quantity){
+             console.log('Not Enough In Stock');
+             console.log('Order Cancelled');
+             reOrder();
+         }
+         else{
+             priceTotal= res[0].price * answer.stock_quantity;
+             currentDepartment = res[0].DepartmentName;
+             console.log('Thanks for your order');
+             console.log('Your Total Amount is $' + priceTotal);
+             console.log('');
+             connection.query('UPDATE products SET ? Where ?', [{
+                 stock_quantity: res[0].stock_quantity - answer.stock_quantity
+             },{
+                 id: answer.itemID
+             }], function(err, res){});
+             reOrder(); 
+         }
+     })
 
-// var purchase = function() {
-//     inquirer.prompt([{
-//         name: "item",
-//         type: "input",
-//         message: "What is the ID of Item you want to Purchase?"
-//     }, {
-//         name: "quantity",
-//         type: "input",
-//         message: "How many of this item do you want?"
-//     }, {
-//         name: "startingBid",
-//         type: "input",
-//         message: "What would you like your starting bid to be?",
-//         validate: function(value) {
-//             if (isNaN(value) == false) {
-//                 return true;
-//             } else {
-//                 return false;
-//             }
-//         }
-//     }]).then(function(answer) {
-//         connection.query("INSERT INTO auctions SET ?", {
-//             itemname: answer.item,
-//             category: answer.category,
-//             startingbid: answer.startingBid,
-//             highestbid: answer.startingBid
-//         }, function(err, res) {
-//             console.log("Your auction was created successfully!");
-//             start();
-//         });
-//     })
-// }
+ }, function(err, res){})
+};
 
-// Users should then be prompted with two messages.
-// The first message should ask them the ID of the product they would
-// like to buy.The second message should ask them how many of the product
-// they would like to buy.
+// ====================================================================
+
+
+function reOrder(){
+ inquirer.prompt([{
+     type: 'confirm',
+     name: 'choice',
+     message: 'Would you like to place another order?'
+ }]).then(function(answer){
+     if(answer.choice){
+         displayItems ();
+     }
+     else{
+         connection.end();
+     }
+ })
+};
+
