@@ -22,7 +22,6 @@ function displayItems() {
         }
         purchase();
     })
-
 };
 
 connection.connect(function(err) {
@@ -34,28 +33,28 @@ connection.connect(function(err) {
 
 var purchase = function() {
         inquirer.prompt([{
-                name: "id",
-                type: "input",
-                message: "What is the ID of Item you want to Purchase?",
-                validate: function(value) {
-                    var valid = value.match(/^[0-9]+$/)
-                    if (valid) {
-                        return true
-                    }
-                    return 'Please enter a valid Product ID'
+            name: "id",
+            type: "input",
+            message: "What is the ID of Item you want to Purchase?",
+            validate: function(value) {
+                var valid = value.match(/^[0-9]+$/)
+                if (valid) {
+                    return true
                 }
-            }, {
-                name: "stock_quantity",
-                type: "input",
-                message: "How many of this item do you want?",
-                validate: function(value) {
-                    var valid = value.match(/^[0-9]+$/)
-                    if (valid) {
-                        return true
-                    }
-                    return 'Please enter a valid Product ID'
+                return 'Please enter a valid Product ID'
+            }
+        }, {
+            name: "stock_quantity",
+            type: "input",
+            message: "How many of this item do you want?",
+            validate: function(value) {
+                var valid = value.match(/^[0-9]+$/)
+                if (valid) {
+                    return true
                 }
-            
+                return 'Please enter a valid Product ID'
+            }
+
 
         }]).then(function(answer) {
             connection.query('SELECT * FROM products WHERE id = ?', [answer.id], function(err, res) {
@@ -76,8 +75,8 @@ var purchase = function() {
                 }
             });
         });
-    }
-    // ====================================================================
+};
+// ====================================================================
 
 function reOrder() {
     inquirer.prompt([{
