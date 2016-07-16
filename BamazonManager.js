@@ -32,7 +32,7 @@ function storeManagement(){
 		}
 		else if(answer.input === '4) Add New Product'){
 			addProduct();
-		};
+};
 
 function displayItems(){
     connection.query('SELECT * FROM Products', function(err, res) {
