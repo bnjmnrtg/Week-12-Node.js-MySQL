@@ -46,7 +46,6 @@ function displayItems(){
         }
         backToMain();
     })
-
 };
 
 function lowOnProduct(){
@@ -66,7 +65,6 @@ function lowOnProduct(){
         }
         backToMain();
     })
-
 };
 
 function addInventory(){
@@ -142,7 +140,6 @@ function addProduct(){
 			})
 		}
 	})
-
 };
 
 function backToMain(){
