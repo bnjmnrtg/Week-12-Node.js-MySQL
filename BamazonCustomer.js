@@ -70,7 +70,7 @@ var purchase = function() {
                     console.log('Your Total Amount is $' + priceTotal);
                     console.log('');
                     var math = res[0].stock_quantity - parseInt(answer.stock_quantity);
-                    console.log(math);
+                    // console.log(math);
                     connection.query('UPDATE products SET stock_quantity=' + math + ' Where id =' + answer.id);
                     reOrder();
                 }
